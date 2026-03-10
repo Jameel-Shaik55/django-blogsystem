@@ -1,0 +1,64 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="row">
+  <!-- left side bar -->
+  <!-- load sidebar.html here -->
+  {% include 'dashboard/sidebar.html' %}
+  <!-- right side bar -->
+  <div class="col-md-9">
+    <div class="row">
+      {% if perms.auth.view_user %}
+      <div class="col">
+        <h3 class="text-center">All Users</h3>
+        <a  
+          href="{% url 'add_user' %}"
+          class="pl-3 pr-3 mb-2 pb-2 pt-2 text-white float-right"
+          style="text-decoration: none;background-color: black;"
+          >ADD New</a
+        >
+      </div>
+      <table class="table table-hover table-bordered">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Active</th>
+            <th>Superuser</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <th>{{ forloop.counter }}</th>
+            <td>{{ user.username }}</td>
+            <td>{{ user.first_name }} {{ user.last_name }}</td>
+            <td>{{ user.email }}</td>
+            <td>{{ user.is_staff }}</td>
+            <td>{{ user.is_active }}</td>
+            <td>{{ user.is_superuser }}</td>
+            <!-- <td>{% if post.is_featured %}<i class="fa fa-check text-success"></i>{% else %}<i class="fa fa-times text-danger"></i>{% endif %}</td> -->
+            <td>
+              <a href="{% url 'edit_user' user.id %}"
+                ><i class="fa fa-edit text-success"></i
+              ></a>
+              &nbsp;
+              <a href="{% url 'delete' user.id %}"
+                ><i class="fa fa-trash text-danger"></i
+              ></a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <h5 class="text-center">You do not have access to this page</h5>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}

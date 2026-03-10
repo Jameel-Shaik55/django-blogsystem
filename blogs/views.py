@@ -1,7 +1,10 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
-
-from .models import Blog, Category
+from .models import Blog, Category, Comment
 from django.db.models import Q
+
+from .serializers import BlogSerializer
+from rest_framework.viewsets import ModelViewSet
 
 # Create your views here.
 def get_posts_by_category(request, category_id):
@@ -24,12 +27,32 @@ def get_posts_by_category(request, category_id):
     }
     return render(request, 'posts_by_category.html', context)
 
-def blogs(request, slug):
+'''def blogs(request, slug):
     single_blog = get_object_or_404(Blog, slug=slug, status = "Published")
     # print(single_blog)
 
     context = {
         'single_blog': single_blog
+    }
+    return render(request, 'single_blog_page.html', context)'''
+def blogs(request, slug):
+    single_blog = get_object_or_404(Blog, slug=slug, status='Published')
+    if request.method == 'POST':
+        comment = Comment()
+        comment.user = request.user
+        comment.blog = single_blog
+        comment.comment = request.POST['comment']
+        comment.save()
+        return HttpResponseRedirect(request.path_info)
+
+    # Comments
+    comments = Comment.objects.filter(blog=single_blog)
+    comment_count = comments.count()
+    
+    context = {
+        'single_blog': single_blog,
+        'comments': comments,
+        'comment_count': comment_count,
     }
     return render(request, 'single_blog_page.html', context)
 
@@ -43,3 +66,7 @@ def search(request):
     }
 
     return render(request, 'search.html', context)
+
+class BlogViewSet(ModelViewSet):
+    queryset = Blog.objects.filter(status="Published")
+    serializer_class = BlogSerializer
