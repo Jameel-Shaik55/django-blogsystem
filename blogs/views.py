@@ -2,8 +2,10 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Blog, Category, Comment
 from django.db.models import Q
-
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework.filters import SearchFilter
 from .serializers import BlogSerializer
+from .pagination import BlogPagination
 from rest_framework.viewsets import ModelViewSet
 
 # Create your views here.
@@ -70,3 +72,7 @@ def search(request):
 class BlogViewSet(ModelViewSet):
     queryset = Blog.objects.filter(status="Published")
     serializer_class = BlogSerializer
+    pagination_class = BlogPagination
+    filter_backends = [DjangoFilterBackend, SearchFilter]
+    filterset_fields = ['category', 'author', 'status']
+    search_fields = ['title', 'short_description']
